@@ -1,98 +1,169 @@
 # Umbraco Installation Guide (macOS with M3 Chip)
 
-This guide walks you through setting up Umbraco on your macOS machine using .NET without Docker. Ideal for initial development and local testing.
+# MyUmbraco Project
+
+This project sets up an Umbraco 15+ website locally using the .NET SDK and prepares it for Docker deployment.
 
 ---
 
-## 🛠 Prerequisites
+## ✅ Prerequisites
 
-- macOS with M3 chip
-- [Install .NET SDK (v8 or newer)](https://dotnet.microsoft.com/en-us/download)
-  - Make sure to download the **ARM64 version** for M1/M2/M3 Macs.
-- [Visual Studio Code](https://code.visualstudio.com/)
-- Terminal access
+- [.NET SDK 8.0 or higher](https://dotnet.microsoft.com/en-us/download)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Azure Data Studio (optional)](https://learn.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio)
 
 ---
 
-## 🚀 Step-by-Step Installation
+## 🧪 Local Setup (Without Docker)
 
-### 1. Verify .NET Installation
-
-Open terminal and run:
+### 1. Install Umbraco Templates
 
 ```bash
-dotnet --info
-
-You should see info about the installed .NET SDK.
-
-⸻
-
-2. Install Umbraco Templates
-
 dotnet new install Umbraco.Templates
 
-This adds the latest Umbraco templates to your .NET SDK.
+2. Create a New Umbraco Project
 
-⸻
+dotnet new umbraco -n MyUmbraco
+cd MyUmbraco
 
-3. Create a New Project
-
-dotnet new umbraco -n MyProject
-cd MyProject
-
-	•	Replace MyProject with your desired folder name.
-	•	A .csproj file should be generated inside.
-
-⸻
-
-4. Trust the Development HTTPS Certificate
-
-To fix the HTTPS error on macOS:
+3. Trust the HTTPS Certificate (macOS/Windows only)
 
 dotnet dev-certs https --trust
 
-
-
-⸻
-
-5. Run Umbraco
+4. Run the Project
 
 dotnet run
 
-After a few seconds, the terminal will show:
+Once it runs, check the console for a message like:
 
 Now listening on: https://localhost:443xx
 
-Copy this URL and open it in your browser. You’ll see the Install Umbraco screen 🎉
+Open the URL in your browser to complete the Umbraco setup.
 
-⸻
+---
 
-🗄 Database Options
+SQL Server Setup with Docker
 
-Since you are not using Docker or SQL Server yet, Umbraco will use SQLite by default.
+You can spin up SQL Server in Docker like this:
 
-This is great for:
-	•	Local dev
-	•	Fast setup
-	•	No config needed
+docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrongPassword123" \
+  -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest
 
-You can always switch to SQL Server later (see the Docker setup below).
+You can manage the database using Azure Data Studio.
+Use localhost, sa, and the password you set (YourStrongPassword123) when connecting.
 
-⸻
+---
 
-🐳 Planning to Use Docker + SQL Server?
+Preparing for Docker
 
-If you want to set up Docker for Umbraco + Microsoft SQL Server later, follow the next steps in a separate guide (README-docker.md). This setup is perfect when:
-	•	You need SQL Server features
-	•	Preparing for production
-	•	Collaborating with others
+Next steps:
+	•	Add Dockerfile
+	•	Add docker-compose.yml
+	•	Connect to the SQL Server container
+	•	Configure the connection string in appsettings.json
 
-⸻
+---
 
-✅ Useful Links
+Build & Run with Docker (to be added)
+
+docker-compose up --build
+
+---
+
+Useful Links
 	•	Official Umbraco Docs
 	•	Getting Started with Umbraco 9+
-	•	Azure Data Studio (DB management)
+	•	Azure Data Studio - DB management
+	•	SQL Server Docker Hub
+
+---
+
+Creating a Simple Umbraco Website
+
+This guide is a continuation of the local Umbraco installation steps. Now that your Umbraco CMS is running, let’s build a small website with a Home page and an About Me page.
+
+---
+
+Create the Page Template in Umbraco
+
+1. Go to “Settings” → “Document Types”
+
+Click “Document Type with Template” to create a new content page.
+
+Set the following:
+	•	Name: Page
+	•	Alias: page
+	•	Allow at root: ✅ (Toggle enabled)
+
+Then click Save.
+
+---
+
+2. Add Content Fields to the Page
+
+In the same Document Type, click the “Design” tab.
+	1.	Add Group: Name it Content
+	2.	Add Properties:
+	•	Title
+	•	Alias: title
+	•	Editor: Textstring
+	•	Body Text
+	•	Alias: bodyText
+	•	Editor: Rich Text Editor
+
+Click Save again.
+
+---
+
+ Edit the Page Template
+	1.	Go to Settings → Templates
+	2.	Click on Page.cshtml
+	3.	Replace the content with this minimal Razor view:
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@Model.Value("title")</title>
+</head>
+<body>
+    <h1>@Model.Value("title")</h1>
+    <div>
+        @Model.Value("bodyText")
+    </div>
+</body>
+</html>
+
+Click Save.
+
+---
+
+Create Your Pages
+	1.	Go to Content
+	2.	Click “Create” → Choose Page
+
+Create:
+	•	Home Page
+	•	Title: Welcome to My Cake Site!
+	•	Body: 🍰 A place to explore delicious cake recipes and ideas.
+	•	About Me Page
+	•	Title: About Me
+	•	Body: 👩‍🍳 I’m a cake enthusiast who loves baking sweet things on weekends.
+
+Click Save and Publish for both.
+
+---
+
+Done!
+
+You now have a basic Umbraco site with:
+	•	A homepage about cake
+	•	An about page
 
 
 
